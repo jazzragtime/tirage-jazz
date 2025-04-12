@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tirage - Standards de Jazz</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      padding: 2em;
+    }
+    .container {
+      background: #fff;
+      padding: 2em;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.8em;
+      font-size: 1em;
+      margin-top: 1em;
+    }
+    fieldset {
+      margin-top: 1em;
+      padding: 1em;
+    }
+    label {
+      display: block;
+      margin-top: 0.5em;
+    }
+    #resultat {
+      margin-top: 2em;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Tirage au sort – Standards de Jazz</h1>
+    <p>Veuillez entrer votre <strong>NOM Prénom</strong>, sélectionner éventuellement un ou deux standards à exclure, puis cliquer sur “Tirer”.</p>
+    <input type="text" id="nom" placeholder="NOM Prénom">
+    <fieldset>
+      <legend>Standards à inclure</legend>
+      <label><input type="checkbox" class="standard" value="Blue Room" checked> Blue Room</label>
+      <label><input type="checkbox" class="standard" value="Blue Bossa" checked> Blue Bossa</label>
+      <label><input type="checkbox" class="standard" value="Almost Like Being in Love" checked> Almost Like Being in Love</label>
+      <label><input type="checkbox" class="standard" value="Imagination" checked> Imagination</label>
+    </fieldset>
+    <button onclick="tirer()">Tirer un standard</button>
+    <p id="resultat"></p>
+  </div>
+
+  <script>
+    const endpoint = "https://script.google.com/macros/s/AKfycbzTJtpp8lr5hFDt-tdU8heNGM9x5avuPsBdIDmtZ4vx7ZI4BlrOFUCPXRBRastup9Ph/exec";
+
+    function tirer() {
+      const nom = document.getElementById("nom").value.trim();
+      const standards = document.querySelectorAll(".standard");
+      const inclus = [];
+      const exclus = [];
+
+      standards.forEach(cb => cb.checked ? inclus.push(cb.value) : exclus.push(cb.value));
+
+      if (!nom) return alert("Veuillez entrer votre NOM Prénom.");
+      if (inclus.length < 2) return alert("Veuillez garder au moins deux standards cochés.");
+
+      const tirage = inclus[Math.floor(Math.random() * inclus.length)];
+      const date = new Date().toLocaleString();
+
+      document.getElementById("resultat").innerText = "Standard attribué : " + tirage;
+
+      fetch(endpoint, {
+        method: "POST",
+        body: JSON.stringify({
+          nom: nom,
+          standard: tirage,
+          exclus: exclus.join(", ")
+        }),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.text())
+      .then(txt => console.log("Réponse:", txt))
+      .catch(err => console.error("Erreur:", err));
+    }
+  </script>
+</body>
+</html>
